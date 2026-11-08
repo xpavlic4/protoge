@@ -1,7 +1,7 @@
 plugins {
   id 'java'
   id 'checkstyle'
-  id 'org.springframework.boot' version '4.0.3'
+  id 'org.springframework.boot' version '4.0.9'
   id 'io.spring.dependency-management' version '1.1.7'
   id 'org.graalvm.buildtools.native' version '0.11.5'
   id 'org.cyclonedx.bom' version '3.2.0'
@@ -42,7 +42,7 @@ dependencies {
   implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
   implementation 'javax.cache:cache-api'
   implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
-  implementation 'org.apache.poi:poi-ooxml:5.3.0'
+  implementation 'org.apache.poi:poi-ooxml:5.5.1'
   runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator'
   runtimeOnly "org.webjars:webjars-locator-lite:${webjarsLocatorLiteVersion}"
   runtimeOnly "org.webjars.npm:bootstrap:${webjarsBootstrapVersion}"
