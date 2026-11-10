@@ -20,10 +20,12 @@ import jakarta.validation.Valid;
 import org.springframework.samples.petclinic.system.CustomUserPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
@@ -60,10 +62,7 @@ class AttackController {
 		Case aCase = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Case not found with id: " + caseId + ". Please ensure the ID is correct "));
 
-		// Argument argument = aCase.getArgument(argId);
-		Argument argument = arguments.findById(argId)
-			.orElseThrow(() -> new IllegalArgumentException(
-					"Argument not found with id: " + argId + ". Please ensure the ID is correct "));
+		Argument argument = findArgumentInCase(caseId, argId);
 		model.put("argument", argument);
 		model.put("case", aCase);
 
@@ -130,8 +129,7 @@ class AttackController {
 		Case aCase = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Case not found with id: " + caseId + ". Please ensure the ID is correct "));
 
-		Argument parentArg = arguments.findById(argumentId)
-			.orElseThrow(() -> new IllegalArgumentException("Argument not found with id: " + argumentId));
+		Argument parentArg = findArgumentInCase(caseId, argumentId);
 
 		att.setCase(aCase);
 		att.setParentId(parentArg.getId());
@@ -145,6 +143,18 @@ class AttackController {
 		this.arguments.saveAndFlush(att);
 		redirectAttributes.addFlashAttribute("message", "Added.");
 		return "redirect:/cases/{caseId}";
+	}
+
+	/**
+	 * Loads an argument only if it belongs to the given case. The case ownership check in
+	 * {@code @PreAuthorize} only covers {@code caseId}, so without this an argument of
+	 * another case could be attacked by changing {@code argumentId} in the URL.
+	 */
+	Argument findArgumentInCase(int caseId, int argumentId) {
+		return arguments.findById(argumentId)
+			.filter(argument -> argument.getCase() != null && argument.getCase().getId() == caseId)
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"Argument " + argumentId + " not found in case " + caseId));
 	}
 
 }
