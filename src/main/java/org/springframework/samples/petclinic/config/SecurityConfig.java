@@ -19,7 +19,7 @@ public class SecurityConfig {
 			throws Exception {
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations())
 			.permitAll()
-			.requestMatchers("/login", "/error", "/actuator/health", "/h2-console/**", "/ping")
+			.requestMatchers("/login", "/error", "/actuator/health", "/ping")
 			.permitAll()
 			.requestMatchers("/*.map")
 			.permitAll()
@@ -37,13 +37,6 @@ public class SecurityConfig {
 				.failureUrl("/login?error=true")
 				.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)))
 			.csrf(c -> c.disable())
-			// Allow frames for H2 Console
-			.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()) // Allow
-			// frames
-			// for
-			// H2
-			// Console
-			)
 			.logout(c -> c.logoutUrl("/logout").invalidateHttpSession(true).permitAll());
 		return http.build();
 	}
