@@ -16,6 +16,7 @@
 package org.springframework.samples.petclinic.report;
 
 import org.springframework.samples.petclinic.cases.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -101,6 +102,7 @@ class ReportController {
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	@GetMapping("/reports/{caseId}")
+	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
 	public ModelAndView showOwner(@PathVariable("caseId") int caseId) {
 		ModelAndView mav = new ModelAndView("reports/reportDetails");
 		Optional<Case> optionalOwner = this.cases.findById(caseId);
