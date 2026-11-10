@@ -58,30 +58,17 @@ Our issue tracker is available [here](https://github.com/spring-projects/spring-
 
 ## Database configuration
 
-The application needs a persistent database: PostgreSQL (or MySQL). There is no in-memory database. The app needs to run with the matching profile: `spring.profiles.active=mysql` for MySQL or `spring.profiles.active=postgres` for PostgreSQL. See the [Spring Boot documentation](https://docs.spring.io/spring-boot/how-to/properties-and-configuration.html#howto.properties-and-configuration.set-active-spring-profiles) for more detail on how to set the active profile.
+The application uses PostgreSQL. Run it with the `postgres` profile: `spring.profiles.active=postgres`. See the [Spring Boot documentation](https://docs.spring.io/spring-boot/how-to/properties-and-configuration.html#howto.properties-and-configuration.set-active-spring-profiles) for more detail on how to set the active profile.
 
-You can start MySQL or PostgreSQL locally with whatever installer works for your OS or use docker:
-
-```bash
-docker run -e MYSQL_USER=petclinic -e MYSQL_PASSWORD=petclinic -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:9.6
-```
-
-or
+You can start PostgreSQL locally with whatever installer works for your OS or use docker:
 
 ```bash
 docker run -e POSTGRES_USER=petclinic -e POSTGRES_PASSWORD=petclinic -e POSTGRES_DB=petclinic -p 5432:5432 postgres:18.3
 ```
 
-Further documentation is provided for [MySQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/mysql/petclinic_db_setup_mysql.txt)
-and [PostgreSQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/postgres/petclinic_db_setup_postgres.txt).
+Further documentation is provided for [PostgreSQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/postgres/petclinic_db_setup_postgres.txt).
 
-Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database containers. Each one has a service named after the Spring profile:
-
-```bash
-docker compose up mysql
-```
-
-or
+Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database container:
 
 ```bash
 docker compose up postgres
@@ -89,7 +76,7 @@ docker compose up postgres
 
 ## Test Applications
 
-At development time we recommend you use the test applications set up as `main()` methods in `PetClinicIntegrationTests` (with Spring Boot Devtools), `MySqlTestApplication` and `PostgresIntegrationTests`. These are set up so that you can run the apps in your IDE to get fast feedback and also run the same classes as integration tests against the respective database. The MySql integration tests use Testcontainers to start the database in a Docker container, and the Postgres tests use Docker Compose to do the same thing.
+At development time we recommend you use the test applications set up as `main()` methods in `PetClinicIntegrationTests` (with Spring Boot Devtools) and `PostgresIntegrationTests`. These are set up so that you can run the apps in your IDE to get fast feedback and also run the same classes as integration tests against the database. The Postgres tests use Docker Compose to start the database in a Docker container.
 
 ## Compiling the CSS
 
