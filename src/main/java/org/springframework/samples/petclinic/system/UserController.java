@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.system;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -129,7 +131,12 @@ class UserController {
 	}
 
 	@PostMapping("/users/{userId}/language")
-	public String updateUserLanguage(@PathVariable("userId") Long userId, @RequestParam("language") String language) {
+	public String updateUserLanguage(@PathVariable("userId") Long userId, @RequestParam("language") String language,
+			@AuthenticationPrincipal CustomUserPrincipal principal) {
+		// Users may change only their own language.
+		if (principal == null || !userId.equals(principal.getUser().getId())) {
+			throw new AccessDeniedException("You can only change your own language.");
+		}
 		User user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
 		user.setLanguage(language);
 		users.save(user);
