@@ -1,23 +1,20 @@
 package org.springframework.samples.petclinic.system;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.samples.petclinic.config.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -27,12 +24,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * Users may change only their own language. Runs through the real security filter chain
- * from {@link SecurityConfig}.
+ * User management under {@code /users} is for admins ({@code users.admin = true}) only.
+ * Runs through the real security filter chain from {@link SecurityConfig}.
  */
 @WebMvcTest(UserController.class)
 @Import({ SecurityConfig.class, UserLocaleResolver.class })
-class UserLanguageSecurityTests {
+class UserAdminSecurityTests {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -46,44 +43,40 @@ class UserLanguageSecurityTests {
 	@MockitoBean
 	private CustomOAuth2UserService oauth2UserService;
 
-	private final User alice = user(1L, "Alice");
+	private final User admin = user(1L, "Alice", true);
 
-	private final User bob = user(2L, "Bob");
+	private final User regular = user(2L, "Bob", false);
 
-	@BeforeEach
-	void setUp() {
-		when(users.findById(1L)).thenReturn(Optional.of(alice));
-		when(users.findById(2L)).thenReturn(Optional.of(bob));
+	@Test
+	void adminCanListUsers() throws Exception {
+		when(users.findByNameStartingWith(anyString(), any()))
+			.thenReturn(new PageImpl<>(List.of(admin, regular), PageRequest.of(0, 5), 2));
+
+		mockMvc.perform(get("/users").session(loggedIn(admin))).andExpect(status().isOk());
 	}
 
 	@Test
-	void userCanChangeOwnLanguage() throws Exception {
-		mockMvc.perform(post("/users/1/language").param("language", "cs").session(loggedIn(alice)))
-			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("/users/1"));
-
-		verify(users).save(alice);
-		assertThat(alice.getLanguage()).isEqualTo("cs");
+	void nonAdminCannotListUsers() throws Exception {
+		mockMvc.perform(get("/users").session(loggedIn(regular))).andExpect(status().isForbidden());
 	}
 
 	@Test
-	void userCannotChangeAnotherUsersLanguage() throws Exception {
-		mockMvc.perform(post("/users/2/language").param("language", "cs").session(loggedIn(alice)))
-			.andExpect(status().isForbidden());
+	void nonAdminCannotOpenUserSearch() throws Exception {
+		mockMvc.perform(get("/users/find").session(loggedIn(regular))).andExpect(status().isForbidden());
+	}
 
-		verify(users, never()).save(any());
-		assertThat(bob.getLanguage()).isEqualTo("en");
+	@Test
+	void nonAdminCannotViewAnotherUser() throws Exception {
+		mockMvc.perform(get("/users/1").session(loggedIn(regular))).andExpect(status().isForbidden());
 	}
 
 	@Test
 	void anonymousUserIsSentToLogin() throws Exception {
-		mockMvc.perform(post("/users/1/language").param("language", "cs")).andExpect(status().is3xxRedirection());
-
-		verify(users, never()).save(any());
+		mockMvc.perform(get("/users")).andExpect(status().is3xxRedirection());
 	}
 
 	private static MockHttpSession loggedIn(User user) {
-		CustomUserPrincipal principal = CustomUserPrincipal.create(user, Map.of());
+		CustomUserPrincipal principal = CustomUserPrincipal.create(user, Map.of("name", user.getName()));
 		TestingAuthenticationToken auth = new TestingAuthenticationToken(principal, null,
 				List.copyOf(principal.getAuthorities()));
 		auth.setAuthenticated(true);
@@ -93,12 +86,13 @@ class UserLanguageSecurityTests {
 		return session;
 	}
 
-	private static User user(long id, String name) {
+	private static User user(long id, String name, boolean admin) {
 		User user = new User();
 		user.setId(id);
 		user.setName(name);
 		user.setEmail(name.toLowerCase() + "@example.com");
 		user.setLanguage("en");
+		user.setAdmin(admin);
 		return user;
 	}
 
