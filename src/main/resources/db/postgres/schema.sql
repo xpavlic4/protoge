@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS users (
                                    provider VARCHAR(255),
                                    providerId VARCHAR(255),
                                    language VARCHAR(10),
+                                   admin BOOLEAN NOT NULL DEFAULT FALSE,
                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS cases (

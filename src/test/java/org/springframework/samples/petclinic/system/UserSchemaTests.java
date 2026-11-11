@@ -54,15 +54,18 @@ class UserSchemaTests {
 	private EntityManager entityManager;
 
 	@Test
-	void userIsStoredWithLanguage() {
+	void userIsStoredWithAllMappedColumns() {
 		User user = new User();
 		user.setName("Alice");
 		user.setEmail("alice@example.com");
 		user.setLanguage("cs");
+		user.setAdmin(true);
 		Long id = users.saveAndFlush(user).getId();
 		entityManager.clear();
 
-		assertThat(users.findById(id)).get().extracting(User::getLanguage).isEqualTo("cs");
+		User loaded = users.findById(id).orElseThrow();
+		assertThat(loaded.getLanguage()).isEqualTo("cs");
+		assertThat(loaded.isAdmin()).isTrue();
 	}
 
 }
