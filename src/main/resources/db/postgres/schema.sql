@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS users (
                                    email VARCHAR(255) NOT NULL UNIQUE,
                                    provider VARCHAR(255),
                                    providerId VARCHAR(255),
+                                   language VARCHAR(10),
                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS cases (
