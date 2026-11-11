@@ -70,11 +70,13 @@
             <span class="fa fa-search" aria-hidden="true"></span>
             <span th:text="#{searchCases}">Search cases</span>
           </li>
+          <th:block th:if="${#authentication.principal.user.admin}">
+            <li th:replace="~{::menuItem ('/users','users','users','users',#{users})}">
+              <span class="fa fa-users" aria-hidden="true"></span>
+              <span th:text="#{users}">Users</span>
+            </li>
+          </th:block>
           <!--
-          <li th:replace="~{::menuItem ('/users','users','users','search','Search users')}">
-            <span class="fa fa-search" aria-hidden="true"></span>
-            <span>Search cases</span>
-          </li>
           <li th:replace="~{::menuItem ('/vets.html','vets','veterinarians','th-list','Veterinarians')}">
             <span class="fa fa-th-list" aria-hidden="true"></span>
             <span>Veterinarians</span>

@@ -1,7 +1,6 @@
 package org.springframework.samples.petclinic.system;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +14,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.samples.petclinic.config.SecurityConfig;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -49,7 +49,7 @@ class UserAdminSecurityTests {
 
 	@Test
 	void adminCanListUsers() throws Exception {
-		when(users.findByNameStartingWith(anyString(), any()))
+		when(users.findAll(any(Pageable.class)))
 			.thenReturn(new PageImpl<>(List.of(admin, regular), PageRequest.of(0, 5), 2));
 
 		mockMvc.perform(get("/users").session(loggedIn(admin))).andExpect(status().isOk());
@@ -58,16 +58,6 @@ class UserAdminSecurityTests {
 	@Test
 	void nonAdminCannotListUsers() throws Exception {
 		mockMvc.perform(get("/users").session(loggedIn(regular))).andExpect(status().isForbidden());
-	}
-
-	@Test
-	void nonAdminCannotOpenUserSearch() throws Exception {
-		mockMvc.perform(get("/users/find").session(loggedIn(regular))).andExpect(status().isForbidden());
-	}
-
-	@Test
-	void nonAdminCannotViewAnotherUser() throws Exception {
-		mockMvc.perform(get("/users/1").session(loggedIn(regular))).andExpect(status().isForbidden());
 	}
 
 	@Test

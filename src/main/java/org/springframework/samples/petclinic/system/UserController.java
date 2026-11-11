@@ -15,24 +15,25 @@
  */
 package org.springframework.samples.petclinic.system;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * Admin-only list of all users with their last login.
+ */
 @Controller
 class UserController {
+
+	private static final int PAGE_SIZE = 5;
 
 	private final UserRepository users;
 
@@ -43,89 +44,24 @@ class UserController {
 		this.loginAuditService = loginAuditService;
 	}
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
-
-	@ModelAttribute("user")
-	public User findOwner(@PathVariable(name = "userId", required = false) Long userId) {
-		return userId == null ? new User()
-				: this.users.findById(userId)
-					.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId
-							+ ". Please ensure the ID is correct " + "and the case exists in the database."));
-	}
-
-	@GetMapping("/users/find")
-	public String initFindForm() {
-		return "users/findUsers";
-	}
-
-	/**
-	 * Custom handler for displaying an owner.
-	 * @param userId the ID of the user to display
-	 * @return a ModelMap with the model attributes for the view
-	 */
-	@GetMapping("/users/{userId}")
-	public ModelAndView showCase(@PathVariable("userId") long userId) {
-		ModelAndView mav = new ModelAndView("users/userDetails");
-		Optional<User> optionalCase = this.users.findById(userId);
-		User aCase = optionalCase.orElseThrow(() -> new IllegalArgumentException(
-				"User not found with id: " + userId + ". Please ensure the ID is correct "));
-		mav.addObject(aCase);
-		return mav;
-	}
-
-	/**
-	 * Cases
-	 */
-
 	@GetMapping("/users")
-	public String processFindForm(@RequestParam(defaultValue = "1") int page, User anUser, BindingResult result,
-			Model model) {
-		// allow parameterless GET request for /owners to return all records
-		if (anUser.getName() == null) {
-			anUser.setName(""); // empty string signifies broadest possible search
-		}
-
-		// find owners by last name
-		Page<User> casesResult = findPaginatedForCasesLastName(page, anUser.getName());
-		if (casesResult.isEmpty()) {
-			// no owners found
-			result.rejectValue("name", "notFound", "not found");
-			return "users/findUsers";
-		}
-
-		if (casesResult.getTotalElements() == 1) {
-			// 1 case found
-			anUser = casesResult.iterator().next();
-			return "redirect:/users/" + anUser.getId();
-		}
-
-		// multiple owners found
-		return addPaginationModelCases(page, model, casesResult);
-	}
-
-	private String addPaginationModelCases(int page, Model model, Page<User> paginated) {
+	public String listUsers(@RequestParam(defaultValue = "1") int page, Model model) {
+		int currentPage = Math.max(page, 1);
+		Page<User> paginated = users.findAll(PageRequest.of(currentPage - 1, PAGE_SIZE, Sort.by("name", "id")));
 		List<User> listUsers = paginated.getContent();
-		model.addAttribute("currentPage", page);
+		model.addAttribute("currentPage", currentPage);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listUsers", listUsers);
 
 		Map<String, String> lastLoginTimes = listUsers.stream()
 			.map(User::getEmail)
+			.distinct()
 			.collect(Collectors.toMap(email -> email,
 					email -> TimeAgoFormatter.format(loginAuditService.getLastLoginTime(email).orElse(null))));
 		model.addAttribute("lastLoginTimes", lastLoginTimes);
 
 		return "users/usersList";
-	}
-
-	private Page<User> findPaginatedForCasesLastName(int page, String lastname) {
-		int pageSize = 5;
-		Pageable pageable = PageRequest.of(page - 1, pageSize);
-		return users.findByNameStartingWith(lastname, pageable);
 	}
 
 }
