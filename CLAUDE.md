@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A fork of Spring PetClinic that has been turned into an **argumentation checklist** app: users log in with Google, create *cases*, add *arguments* to them, attack arguments (rebutting / undercutting / undermining) to build an argument tree, add *evaluations*, and view/export reports (tree view, Excel). `README.md` is mostly upstream PetClinic text and is stale (e.g. H2/MySQL were removed; only PostgreSQL is supported). The Java package is still `org.springframework.samples.petclinic`, and leftover `owner`/`vet`/`pets` packages, templates and schema tables are PetClinic remnants. Manual use-case scenarios are in `docs/TestCases.md`.
 
-Stack: Spring Boot 4.0.x, Java 17, Spring MVC + Thymeleaf, Spring Data JPA, Spring Security with OAuth2 login (Google), PostgreSQL, Caffeine cache, Apache POI.
+Stack: Spring Boot 4.0.x, Java 17, Spring MVC + Thymeleaf, Spring Data JPA, Spring Security with OAuth2 login (Google), PostgreSQL, Apache POI.
 
 ## Commands
 
