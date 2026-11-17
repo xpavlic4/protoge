@@ -1,13 +1,12 @@
 package org.springframework.samples.petclinic.system;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CustomUserPrincipal implements OAuth2User, UserDetails {
 
@@ -40,10 +39,8 @@ public class CustomUserPrincipal implements OAuth2User, UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return user.getRoles()
-			.stream()
-			.map(role -> new SimpleGrantedAuthority(role.getName()))
-			.collect(Collectors.toList());
+		// roles are per case (see CaseRole); global admin is users.admin
+		return List.of();
 	}
 
 	@Override

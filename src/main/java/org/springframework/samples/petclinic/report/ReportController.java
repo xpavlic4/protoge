@@ -102,7 +102,7 @@ class ReportController {
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	@GetMapping("/reports/{caseId}")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public ModelAndView showOwner(@PathVariable("caseId") int caseId) {
 		ModelAndView mav = new ModelAndView("reports/reportDetails");
 		Optional<Case> optionalOwner = this.cases.findById(caseId);

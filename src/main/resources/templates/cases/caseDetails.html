@@ -26,6 +26,10 @@
     <th th:text="#{identificator}">Identificator</th>
     <td><b th:text="*{name}"></b></td>
   </tr>
+  <tr th:each="cr : ${caseRoles}">
+    <th th:text="#{${'role.' + cr.role.name}}">Role</th>
+    <td><b th:text="${cr.user.name} ?: ${cr.user.email}"></b></td>
+  </tr>
 </table>
 
 <a th:href="@{__${case.id}__/edit}" class="btn btn-primary" th:text="#{edit}">Edit</a>

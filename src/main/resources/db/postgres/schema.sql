@@ -119,7 +119,7 @@ CREATE TABLE if not exists user_roles (
                                         user_id BIGINT NOT NULL,
                                         role_id BIGINT NOT NULL,
                                         case_id BIGINT NOT NULL,
-                                        UNIQUE (user_id, role_id, case_id),
+                                        UNIQUE (user_id, case_id),
                                         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                                         FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
                                         FOREIGN KEY (case_id)  REFERENCES cases(id) on DELETE CASCADE

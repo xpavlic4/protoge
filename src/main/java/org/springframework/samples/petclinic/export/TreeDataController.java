@@ -17,7 +17,7 @@ public class TreeDataController {
 	}
 
 	@GetMapping("/tree/{caseId}")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public ArgumentView getTreeData(@PathVariable int caseId) {
 		return treeService.generateTreeForCase(caseId); // Returns raw JSON
 	}

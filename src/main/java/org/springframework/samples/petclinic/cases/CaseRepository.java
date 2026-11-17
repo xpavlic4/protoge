@@ -62,6 +62,11 @@ public interface CaseRepository extends JpaRepository<Case, Integer> {
 
 	Page<Case> findByNameStartingWithAndUserId(String name, Long userId, Pageable pageable);
 
+	/** Cases in which the user holds any role (judge, plaintiff or defendant). */
+	@Query("SELECT c FROM Case c WHERE c.name LIKE CONCAT(:name, '%') AND EXISTS "
+			+ "(SELECT r FROM CaseRole r WHERE r.aCase = c AND r.user.id = :userId)")
+	Page<Case> findByNameStartingWithAndMember(String name, Long userId, Pageable pageable);
+
 	/**
 	 * Retrieve an {@link Case} from the data store by id.
 	 * <p>

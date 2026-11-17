@@ -26,6 +26,7 @@ import org.springframework.samples.petclinic.export.ArgumentView;
 import org.springframework.samples.petclinic.export.ExcelExportService;
 import org.springframework.samples.petclinic.export.TreeDiagramService;
 import org.springframework.samples.petclinic.system.CustomUserPrincipal;
+import org.springframework.samples.petclinic.system.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -51,8 +52,15 @@ class CaseController {
 
 	private final TreeDiagramService treeService;
 
+	private final CaseRoleService caseRoleService;
+
+	private final CaseRoleRepository caseRoleRepository;
+
 	public CaseController(CaseRepository clinicService, ExcelExportService excelExportService,
-			ArgumentRepository argumentRepository, TreeDiagramService treeService) {
+			ArgumentRepository argumentRepository, TreeDiagramService treeService, CaseRoleService caseRoleService,
+			CaseRoleRepository caseRoleRepository) {
+		this.caseRoleService = caseRoleService;
+		this.caseRoleRepository = caseRoleRepository;
 		this.cases = clinicService;
 		this.excelExportService = excelExportService;
 		this.argumentRepository = argumentRepository;
@@ -72,9 +80,18 @@ class CaseController {
 			aCase.setUser(principal.getUser());
 			return aCase;
 		}
-		return this.cases.findById(caseId)
+		Case aCase = this.cases.findById(caseId)
 			.orElseThrow(() -> new IllegalArgumentException("Case not found with id: " + caseId
 					+ ". Please ensure the ID is correct " + "and the case exists in the database."));
+		aCase.setPlaintiffEmail(caseRoleService.emailOf(caseId, CaseRole.PLAINTIFF));
+		aCase.setDefendantEmail(caseRoleService.emailOf(caseId, CaseRole.DEFENDANT));
+		return aCase;
+	}
+
+	private boolean rejectInvalidParties(Case aCase, User judge, BindingResult result) {
+		caseRoleService.validateParties(judge, aCase.getPlaintiffEmail(), aCase.getDefendantEmail())
+			.forEach((field, code) -> result.rejectValue(field, code, code));
+		return result.hasErrors();
 	}
 
 	@GetMapping("/cases/new")
@@ -85,18 +102,22 @@ class CaseController {
 	@PostMapping("/cases/new")
 	public String processCreationForm(@Valid Case aCase, BindingResult result, RedirectAttributes redirectAttributes,
 			@AuthenticationPrincipal CustomUserPrincipal principal) {
+		if (!result.hasErrors()) {
+			rejectInvalidParties(aCase, principal.getUser(), result);
+		}
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the case.");
 			return VIEWS_CASE_CREATE_OR_UPDATE_FORM;
 		}
 		aCase.setUser(principal.getUser());
 		this.cases.save(aCase);
+		caseRoleService.assignInitial(aCase, principal.getUser(), aCase.getPlaintiffEmail(), aCase.getDefendantEmail());
 		redirectAttributes.addFlashAttribute("message", "Created.");
 		return "redirect:/cases/" + aCase.getId();
 	}
 
 	@GetMapping("/cases/{caseId}/export")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public void exportExcel(HttpServletResponse response, @Valid Case aCase, @PathVariable("caseId") int caseId)
 			throws IOException {
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -137,7 +158,7 @@ class CaseController {
 	}
 
 	@GetMapping("/cases/{caseId}/tree")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String viewDashboard(Model model, @Valid Case aCase, @PathVariable("caseId") int caseId) {
 		ArgumentView treeData = treeService.generateTreeForCase(aCase.getId());
 		model.addAttribute("tree", treeData);
@@ -159,6 +180,9 @@ class CaseController {
 	@PostMapping("/cases/{caseId}/edit")
 	public String processUpdateOwnerForm(@Valid Case aCase, BindingResult result, @PathVariable("caseId") int caseId,
 			RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomUserPrincipal principal) {
+		if (!result.hasErrors()) {
+			rejectInvalidParties(aCase, aCase.getUser(), result);
+		}
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in updating the case.");
 			return VIEWS_CASE_CREATE_OR_UPDATE_FORM;
@@ -171,8 +195,10 @@ class CaseController {
 		}
 
 		aCase.setId(caseId);
-		aCase.setUser(principal.getUser());
+		// keep the original creator: the form does not carry the owner
+		aCase.setUser(this.cases.findById(caseId).orElseThrow().getUser());
 		this.cases.save(aCase);
+		caseRoleService.updateParties(aCase, aCase.getPlaintiffEmail(), aCase.getDefendantEmail());
 		redirectAttributes.addFlashAttribute("message", "Case Values Updated");
 		return "redirect:/cases/{caseId}";
 	}
@@ -183,7 +209,7 @@ class CaseController {
 	 * @return a ModelMap with the model attributes for the view
 	 */
 	// Dynamically passes the ID and Google Principal email to your custom bean
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	@GetMapping("/cases/{caseId}")
 	public ModelAndView showCase(@PathVariable("caseId") int caseId) {
 		ModelAndView mav = new ModelAndView("cases/caseDetails");
@@ -194,6 +220,7 @@ class CaseController {
 		List<Argument> rootAruments = argumentRepository.findRootAruments(caseId);
 		rootAruments.sort(Comparator.comparingInt(a -> a.getEvaluations().size()));
 		mav.addObject("rootAruments", rootAruments);
+		mav.addObject("caseRoles", caseRoleRepository.findByCaseId(caseId));
 
 		return mav;
 	}
@@ -241,7 +268,7 @@ class CaseController {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		// return cases.findByNameStartingWith(lastname, pageable);
-		return cases.findByNameStartingWithAndUserId(lastname, userId, pageable);
+		return cases.findByNameStartingWithAndMember(lastname, userId, pageable);
 	}
 
 }

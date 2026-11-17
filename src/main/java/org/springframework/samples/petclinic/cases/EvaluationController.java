@@ -84,7 +84,7 @@ class EvaluationController {
 	}
 
 	@GetMapping("/cases/{caseId}/arguments/{argumentId}/evaluations/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initNewEvaluationForm(@PathVariable("caseId") int caseId) {
 		return "arguments/createOrUpdateEvaluationsForm";
 	}
@@ -92,7 +92,7 @@ class EvaluationController {
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
 	// called
 	@PostMapping("/cases/{caseId}/arguments/{argumentId}/evaluations/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String processNewEvaluationForm(@ModelAttribute Case aCase, @PathVariable int argumentId,
 			@Valid Evaluation evaluation, BindingResult result, RedirectAttributes redirectAttributes,
 			@PathVariable("caseId") int caseId) {
@@ -107,7 +107,7 @@ class EvaluationController {
 	}
 
 	@GetMapping("/cases/{caseId}/arguments/{argumentId}/evaluations/{evaluationId}/delete")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String deleteEvaluation(@PathVariable("caseId") int caseId, @PathVariable int argumentId,
 			@PathVariable int evaluationId, RedirectAttributes redirectAttributes) {
 		Optional<Case> optionalCase = cases.findById(caseId);

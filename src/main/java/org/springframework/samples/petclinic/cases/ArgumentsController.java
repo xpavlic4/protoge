@@ -98,7 +98,7 @@ class ArgumentsController {
 	}
 
 	@GetMapping("/arguments/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initCreationForm(Case aCase, ModelMap model, @PathVariable("caseId") int caseId) {
 		Argument pet = new Argument();
 		aCase.addArgument(pet);
@@ -106,7 +106,7 @@ class ArgumentsController {
 	}
 
 	@PostMapping("/arguments/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String processCreationForm(Case aCase, @Valid Argument argument, BindingResult result,
 			RedirectAttributes redirectAttributes, @PathVariable("caseId") int caseId) {
 		// if (StringUtils.hasText(argument.getName()) && argument.isNew() &&
@@ -135,19 +135,19 @@ class ArgumentsController {
 	}
 
 	@GetMapping("/arguments/{argumentId}/edit")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initUpdateForm(@PathVariable("caseId") int caseId) {
 		return VIEWS_ARGUMENTS_CREATE_OR_UPDATE_FORM;
 	}
 
 	@GetMapping("/arguments/{argumentId}/detail")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initDetailForm(@PathVariable("caseId") int caseId) {
 		return VIEWS_ARGUMENTS_DETAIL;
 	}
 
 	@PostMapping("/arguments/{argumentId}/edit")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String processUpdateForm(Case aCase, @Valid Argument argument,
 			@PathVariable(name = "argumentId") Integer argumentId, BindingResult result,
 			RedirectAttributes redirectAttributes, @AuthenticationPrincipal CustomUserPrincipal principal,

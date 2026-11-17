@@ -93,19 +93,19 @@ class AttackController {
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
 	@GetMapping("/cases/{caseId}/arguments/{argumentId}/rebutting/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initNewVisitForm(@PathVariable("caseId") int caseId) {
 		return "arguments/createOrUpdateAttackForm";
 	}
 
 	@GetMapping("/cases/{caseId}/arguments/{argumentId}/undercutting/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initNewUndercuttingForm(@PathVariable("caseId") int caseId) {
 		return "arguments/createOrUpdateAttackForm";
 	}
 
 	@GetMapping("/cases/{caseId}/arguments/{argumentId}/undermining/new")
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	public String initNewUnderminingForm(@PathVariable("caseId") int caseId) {
 		return "arguments/createOrUpdateAttackForm";
 	}
@@ -115,7 +115,7 @@ class AttackController {
 	@PostMapping({ "/cases/{caseId}/arguments/{argumentId}/rebutting/new",
 			"/cases/{caseId}/arguments/{argumentId}/undercutting/new",
 			"/cases/{caseId}/arguments/{argumentId}/undermining/new" })
-	@PreAuthorize("@caseSecurity.checkCaseOwner(#caseId, authentication)")
+	@PreAuthorize("@caseSecurity.checkCaseAccess(#caseId, authentication)")
 	@Transactional
 	public String processNewVisitForm(@AuthenticationPrincipal CustomUserPrincipal principal,
 			@PathVariable(name = "argumentId") Integer argumentId, @Valid Argument attack, BindingResult result,

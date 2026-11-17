@@ -47,6 +47,12 @@ public class Case extends NamedEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@Transient
+	private String plaintiffEmail;
+
+	@Transient
+	private String defendantEmail;
+
 	public String getEmail() {
 		return this.email;
 	}
@@ -140,6 +146,24 @@ public class Case extends NamedEntity {
 		Assert.notNull(argument, "Invalid Argument identifier!");
 
 		argument.deleteEvaluation(evaluationId);
+	}
+
+	/** Form-only field: email of the plaintiff (stored as a CaseRole). */
+	public String getPlaintiffEmail() {
+		return plaintiffEmail;
+	}
+
+	public void setPlaintiffEmail(String plaintiffEmail) {
+		this.plaintiffEmail = plaintiffEmail;
+	}
+
+	/** Form-only field: email of the defendant (stored as a CaseRole). */
+	public String getDefendantEmail() {
+		return defendantEmail;
+	}
+
+	public void setDefendantEmail(String defendantEmail) {
+		this.defendantEmail = defendantEmail;
 	}
 
 	public User getUser() {

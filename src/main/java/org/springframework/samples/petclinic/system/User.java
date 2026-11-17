@@ -2,9 +2,6 @@ package org.springframework.samples.petclinic.system;
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Table(name = "users")
 public class User {
@@ -24,11 +21,6 @@ public class User {
 	private String provider; // GOOGLE, GITHUB etc.
 
 	private String providerid;
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-			inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<>();
 
 	public void setProvider(String provider) {
 		this.provider = provider;
@@ -68,14 +60,6 @@ public class User {
 
 	public String getProviderid() {
 		return providerid;
-	}
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
 	}
 
 	public String getLanguage() {
