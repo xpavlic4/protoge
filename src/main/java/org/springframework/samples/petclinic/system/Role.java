@@ -11,7 +11,7 @@ public class Role {
 	private Long id;
 
 	@Column(nullable = false, unique = true)
-	private String name; // e.g. ROLE_USER, ROLE_ADMIN
+	private String name; // e.g. ROLE_JUDGE, ROLE_PLAINTIFF, ROLE_DEFENDANT
 
 	public Long getId() {
 		return id;
