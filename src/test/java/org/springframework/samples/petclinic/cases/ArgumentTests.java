@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.samples.petclinic.vet;
+package org.springframework.samples.petclinic.cases;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.samples.petclinic.cases.Argument;
 import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,19 +23,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Dave Syer
  */
-class VetTests {
+class ArgumentTests {
 
 	@Test
 	void serialization() {
-		Argument vet = new Argument();
-		vet.setPredicate("Zaphod");
-		vet.setPremise("Beeblebrox");
-		vet.setId(123);
+		Argument argument = new Argument();
+		argument.setPredicate("Zaphod");
+		argument.setPremise("Beeblebrox");
+		argument.setId(123);
 		@SuppressWarnings("deprecation")
-		Argument other = (Argument) SerializationUtils.deserialize(SerializationUtils.serialize(vet));
-		assertThat(other.getPredicate()).isEqualTo(vet.getPredicate());
-		assertThat(other.getPremise()).isEqualTo(vet.getPremise());
-		assertThat(other.getId()).isEqualTo(vet.getId());
+		Argument other = (Argument) SerializationUtils.deserialize(SerializationUtils.serialize(argument));
+		assertThat(other.getPredicate()).isEqualTo(argument.getPredicate());
+		assertThat(other.getPremise()).isEqualTo(argument.getPremise());
+		assertThat(other.getId()).isEqualTo(argument.getId());
 	}
 
 }

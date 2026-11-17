@@ -50,22 +50,10 @@
             <span class="fa fa-home" aria-hidden="true"></span>
             <span th:text="#{home}">Home</span>
           </li>
-          <!--
-          <li th:replace="~{::menuItem ('/owners/new','owners','new owner','new','New owner')}">
-            <span class="fa fa-search" aria-hidden="true"></span>
-            <span>New owner</span>
-          </li>
-          -->
           <li th:replace="~{::menuItem ('/cases/new','cases','new case','new',#{newCase})}">
             <span class="fa fa-search" aria-hidden="true"></span>
             <span>New case</span>
           </li>
-<!--
-          <li th:replace="~{::menuItem ('/owners/find','owners','find owners','search','Search owners')}">
-            <span class="fa fa-search" aria-hidden="true"></span>
-            <span>Search owners</span>
-          </li>
-          -->
           <li th:replace="~{::menuItem ('/cases/find','cases','find cases','search',#{search})}">
             <span class="fa fa-search" aria-hidden="true"></span>
             <span th:text="#{searchCases}">Search cases</span>
@@ -76,11 +64,6 @@
               <span th:text="#{users}">Users</span>
             </li>
           </th:block>
-          <!--
-          <li th:replace="~{::menuItem ('/vets.html','vets','veterinarians','th-list','Veterinarians')}">
-            <span class="fa fa-th-list" aria-hidden="true"></span>
-            <span>Veterinarians</span>
-          </li>-->
 
           <!--<li
             th:replace="~{::menuItem ('/oups','error','trigger a RuntimeException to see how it is handled','exclamation-triangle','Error')}">
