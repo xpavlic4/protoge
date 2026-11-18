@@ -13,7 +13,7 @@ Stack: Spring Boot 4.0.x, Java 17, Spring MVC + Thymeleaf, Spring Data JPA, Spri
 Maven is the only build (Dockerfile and CI use it).
 
 ```bash
-./mvnw spring-boot:run                      # run (needs PostgreSQL on localhost:5432, db/user/pass = petclinic)
+./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres  # run (needs PostgreSQL on localhost:5432, db/user/pass = petclinic; the datasource is only configured in the postgres profile)
 docker compose up postgres                  # start the database
 ./mvnw package                              # build + tests + checks
 ./mvnw test -Dtest=AttackControllerTests    # single test class
