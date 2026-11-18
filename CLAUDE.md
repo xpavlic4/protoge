@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A fork of Spring PetClinic that has been turned into an **argumentation checklist** app: users log in with Google, create *cases*, add *arguments* to them, attack arguments (rebutting / undercutting / undermining) to build an argument tree, add *evaluations*, and view/export reports (tree view, Excel). `README.md` is mostly upstream PetClinic text and is stale (e.g. H2/MySQL were removed; only PostgreSQL is supported). The Java package is still `org.springframework.samples.petclinic`, and leftover `owner`/`vet`/`pets` packages, templates and schema tables are PetClinic remnants. Manual use-case scenarios are in `docs/TestCases.md`.
+A fork of Spring PetClinic that has been turned into an **argumentation checklist** app: users log in with Google, create *cases*, add *arguments* to them, attack arguments (rebutting / undercutting / undermining) to build an argument tree, add *evaluations*, and view/export reports (tree view, Excel). `README.md` is mostly upstream PetClinic text and is stale (e.g. H2/MySQL were removed; only PostgreSQL is supported). The Java package is still `org.springframework.samples.petclinic`. Manual use-case scenarios are in `docs/TestCases.md`.
 
 Stack: Spring Boot 4.0.x, Java 17, Spring MVC + Thymeleaf, Spring Data JPA, Spring Security with OAuth2 login (Google), PostgreSQL, Apache POI.
 
@@ -29,7 +29,6 @@ docker compose up postgres                  # start the database
 ## Tests
 
 - `@WebMvcTest` slice tests (e.g. `UserAdminSecurityTests`, `UsersMenuTests`, `ArgumentDetailsPageTests`) import `SecurityConfig` and `UserLocaleResolver` explicitly and mock repositories with `@MockitoBean`. Follow this pattern for controller/security tests.
-- `ClinicServiceTests` (`@DataJpaTest` with `Replace.NONE`) hits the real configured PostgreSQL, so it needs a running DB.
 - `PostgresIntegrationTests` starts Postgres via Spring Boot Docker Compose support (needs Docker). `PetClinicIntegrationTests` and `I18nPropertiesSyncTest` are `@Disabled`.
 
 ## Architecture
