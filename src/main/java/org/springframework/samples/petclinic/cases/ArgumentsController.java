@@ -89,7 +89,7 @@ class ArgumentsController {
 
 	@InitBinder("case")
 	public void initCaseBinder(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
+		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@InitBinder("argument")

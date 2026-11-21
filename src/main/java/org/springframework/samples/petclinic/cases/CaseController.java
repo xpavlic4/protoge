@@ -69,7 +69,7 @@ class CaseController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
+		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@ModelAttribute("case")
@@ -232,6 +232,8 @@ class CaseController {
 	@GetMapping("/cases")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Case aCase, BindingResult result,
 			Model model, @AuthenticationPrincipal CustomUserPrincipal principal) {
+		// user-controlled: PageRequest.of rejects negative indexes
+		page = Math.max(page, 1);
 		// allow parameterless GET request for /owners to return all records
 		if (aCase.getName() == null) {
 			aCase.setName(""); // empty string signifies broadest possible search
