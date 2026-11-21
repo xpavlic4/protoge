@@ -53,14 +53,14 @@ public class PetClinicIntegrationTests {
 
 	@Test
 	void ownerDetails() {
-		RestTemplate template = builder.rootUri("http://localhost:" + port).build();
+		RestTemplate template = builder.baseUri("http://localhost:" + port).build();
 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/cases/1").build(), String.class);
 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
 	void ownerList() {
-		RestTemplate template = builder.rootUri("http://localhost:" + port).build();
+		RestTemplate template = builder.baseUri("http://localhost:" + port).build();
 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/cases?lastName=").build(), String.class);
 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
