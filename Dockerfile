@@ -43,7 +43,7 @@ FROM package as extract
 
 WORKDIR /build
 
-RUN java -Djarmode=layertools -jar target/app.jar extract --destination target/extracted
+RUN java -Djarmode=tools -jar target/app.jar extract --layers --launcher --destination target/extracted
 
 ################################################################################
 
