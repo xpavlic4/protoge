@@ -29,7 +29,7 @@ import jakarta.persistence.EntityManager;
 class UserSchemaTests {
 
 	@Container
-	static final GenericContainer<?> postgres = new GenericContainer<>("postgres:18.3")
+	static final GenericContainer<?> postgres = new GenericContainer<>("postgres:18.4")
 		.withEnv("POSTGRES_USER", "petclinic")
 		.withEnv("POSTGRES_PASSWORD", "petclinic")
 		.withEnv("POSTGRES_DB", "petclinic")
